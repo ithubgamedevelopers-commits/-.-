@@ -162,7 +162,8 @@ PlayerSettings:
   resetResolutionOnWindowResize: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
-  applicationIdentifier: {}
+  applicationIdentifier:
+    Standalone: com.DefaultCompany.IThub-X-Console-Museum
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -600,8 +601,8 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: IThub X Console Museum
-  metroPackageVersion: 
+  metroPackageName: IThubXConsoleMuseum
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -609,7 +610,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: IThub X Console Museum
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: IThub X Console Museum
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
