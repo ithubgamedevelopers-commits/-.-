@@ -6,13 +6,14 @@ public class PacMove : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
 
     private Rigidbody2D rb;
+    private SpriteRenderer sr;
     private Vector2 movement;
-        // для скрита надо: Rigidbody2D(без гравитации), любой из коллайдеров 
-    private void Awake()
-    {
-        //Rigidbody сделает движения более плавными чем transform
-        rb = GetComponent<Rigidbody2D>();
-    }
+        // для скрита надо: Rigidbody2D(без гравитации), любой из коллайдеров, тег Player 
+        private void Awake()
+        {
+            rb = GetComponent<Rigidbody2D>(); //для плавности
+            sr = GetComponent<SpriteRenderer>(); //для поворота
+        }
 
     private void Update()
     {
@@ -31,6 +32,12 @@ public class PacMove : MonoBehaviour
         // убираю ускорение по диагонали
         if (movement.magnitude > 1f)
             movement.Normalize();
+        
+        // Отзеркаливание спрайта при движении влево/вправо
+        if (movement.x > 0)
+            sr.flipX = false;
+        else if (movement.x < 0)
+            sr.flipX = true;
     }
 
     private void FixedUpdate()
