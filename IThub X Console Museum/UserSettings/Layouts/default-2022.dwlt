@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 989
   m_ShowMode: 4
-  m_Title: Scene
+  m_Title: Inspector
   m_RootView: {fileID: 3}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -509,7 +509,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - "Assets/Pictures/\u041A\u0430\u0440\u0442\u0430 \u043A\u0430\u043A \u0432 \u043C\u0443\u0437\u0435\u0435"
+    - "Assets/Scripts/\u043A\u0430\u0440\u0442\u0438\u043D\u043A\u0430"
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -517,15 +517,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 53
   m_LastFolders:
-  - "Assets/Pictures/\u041A\u0430\u0440\u0442\u0430 \u043A\u0430\u043A \u0432 \u043C\u0443\u0437\u0435\u0435"
+  - "Assets/Scripts/\u043A\u0430\u0440\u0442\u0438\u043D\u043A\u0430"
   m_LastFoldersGridSize: 53
   m_LastProjectPath: C:\Users\WORLDPC\Desktop\-.-\IThub X Console Museum
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 85}
-    m_SelectedIDs: 5a730000
-    m_LastClickedID: 29530
+    m_SelectedIDs: 60730000
+    m_LastClickedID: 29536
     m_ExpandedIDs: 00000000cc710000ce710000d0710000d271000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -647,8 +647,8 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: eecfffff
-      m_LastClickedID: -12306
+      m_SelectedIDs: 86710000
+      m_LastClickedID: 29062
       m_ExpandedIDs: 18fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
@@ -1237,9 +1237,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -38.81569, y: 0.0074891225, z: -4.521507}
+    m_Target: {x: 1.9893306, y: -10.650777, z: -4.520562}
     speed: 2
-    m_Value: {x: -38.778255, y: -0.062498227, z: -4.521372}
+    m_Value: {x: 3.1771193, y: -10.870248, z: -4.520427}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1289,9 +1289,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 19.46534
+    m_Target: 13.189684
     speed: 2
-    m_Value: 18.62712
+    m_Value: 12.621707
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -1385,7 +1385,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 1
+    m_EnableMouseInput: 0
     m_EnableSliderZoomHorizontal: 0
     m_EnableSliderZoomVertical: 0
     m_UniformScale: 1
