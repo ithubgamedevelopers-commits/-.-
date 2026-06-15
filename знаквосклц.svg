@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 407 407">
+  <!-- Generator: Adobe Illustrator 30.5.1, SVG Export Plug-In . SVG Version: 2.1.4 Build 3)  -->
+  <defs>
+    <style>
+      .st0 {
+        opacity: .7;
+      }
+
+      .st0, .st1 {
+        fill: #ed1c24;
+        stroke: #230000;
+        stroke-miterlimit: 10;
+        stroke-width: 8px;
+      }
+
+      .st1 {
+        opacity: .6;
+      }
+    </style>
+  </defs>
+  <rect class="st1" x="4" y="4" width="399" height="399"/>
+  <rect class="st0" x="182.66" y="304" width="41.68" height="41.68"/>
+  <rect class="st0" x="182.66" y="86" width="41.68" height="184.84"/>
+</svg>
