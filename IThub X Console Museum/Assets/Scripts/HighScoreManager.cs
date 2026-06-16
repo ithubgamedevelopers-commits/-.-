@@ -1,0 +1,85 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using TMPro;
+using UnityEngine;
+using static System.Net.Mime.MediaTypeNames;
+
+public class HighScoreManager : MonoBehaviour
+{
+    public static HighScoreManager Instance;
+    public HighScoreData currentRecord;
+
+    [Header("UI")]
+    public GameObject inputPanel;
+    public TMP_Text recordDisplayText; // Текст в главном меню
+    public VirtualKeyboard virtualKeyboard;
+
+    [Header("Фильтр")]
+    [Tooltip("Список запрещенных слов (в нижнем регистре)")]
+    public List<string> badWords = new List<string> { "bad", "fuck", "shit", "admin" };
+
+    private string savePath;
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else { Destroy(gameObject); return; }
+
+        savePath = Path.Combine(Application.persistentDataPath, "highscore.json");
+        LoadRecord();
+    }
+
+    public void LoadRecord()
+    {
+        if (File.Exists(savePath))
+            currentRecord = JsonUtility.FromJson<HighScoreData>(File.ReadAllText(savePath));
+        else
+            currentRecord = new HighScoreData { playerName = "AAA", score = 0 };
+
+        UpdateRecordDisplay();
+    }
+
+    public void CheckAndPromptHighScore(int finalScore)
+    {
+        if (finalScore > currentRecord.score && finalScore > 0)
+        {
+            inputPanel.SetActive(true);
+            virtualKeyboard.Initialize(finalScore);
+        }
+    }
+
+    // Проверка на валидность (длина + стоп-слова)
+    public bool IsValidName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Length != 5) return false;
+
+        string lowerName = name.ToLower();
+        foreach (string bad in badWords)
+        {
+            if (lowerName.Contains(bad)) return false;
+        }
+        return true;
+    }
+
+    public void SaveRecord(string name, int score)
+    {
+        if (!IsValidName(name))
+        {
+            virtualKeyboard.ShowError("НЕДОПУСТИМО");
+            return;
+        }
+
+        currentRecord.playerName = name.ToUpper();
+        currentRecord.score = score;
+        File.WriteAllText(savePath, JsonUtility.ToJson(currentRecord));
+
+        inputPanel.SetActive(false);
+        UpdateRecordDisplay();
+    }
+
+    public void UpdateRecordDisplay()
+    {
+        if (recordDisplayText != null)
+            recordDisplayText.text = $"ЛУЧШИЙ: {currentRecord.playerName} — {currentRecord.score}";
+    }
+}
