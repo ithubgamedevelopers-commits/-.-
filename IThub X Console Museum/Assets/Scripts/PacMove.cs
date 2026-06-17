@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 public class PacMove : MonoBehaviour
 {
     [Header("Прочти первый комент")]
@@ -7,7 +8,11 @@ public class PacMove : MonoBehaviour
 
     private Rigidbody2D rb;
     private Vector2 movement;
-        // для скрита надо: Rigidbody2D(без гравитации), любой из коллайдеров 
+    
+    // Переменная для отслеживания направления. 
+    // false = смотрит влево (как ты и просил), true = вправо
+    private bool facingRight = false; 
+
     private void Awake()
     {
         //Rigidbody сделает движения более плавными чем transform
@@ -31,11 +36,32 @@ public class PacMove : MonoBehaviour
         // убираю ускорение по диагонали
         if (movement.magnitude > 1f)
             movement.Normalize();
+
+        // --- ЛОГИКА ПОВОРОТА СПРАЙТА ---
+        // Если нажали D (x > 0), но персонаж смотрит влево (!facingRight) -> поворачиваем
+        if (movement.x > 0 && !facingRight)
+            Flip();
+        // Если нажали A (x < 0), но персонаж смотрит вправо (facingRight) -> поворачиваем
+        else if (movement.x < 0 && facingRight)
+            Flip();
+        // --------------------------------
     }
 
     private void FixedUpdate()
     {
         // Применяем движение к Rigidbody2D
         rb.velocity = movement * moveSpeed;
+    }
+
+    // Метод зеркального отражения
+    private void Flip()
+    {
+        // Меняем булево значение на противоположное
+        facingRight = !facingRight;
+        
+        // Берем текущий масштаб, инвертируем ось X и применяем обратно
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
     }
 }

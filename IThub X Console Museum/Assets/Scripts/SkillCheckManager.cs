@@ -6,19 +6,26 @@ public class SkillCheckManager : MonoBehaviour
     public static SkillCheckManager Instance;
     public int score = 0;
     public TextMeshProUGUI scoreText;
-
-    [Header("UI")]
+    
+    [Header("UI Скиллчека")]
     public GameObject skillCheckPanel;
     private SkillCheckUI currentCheck;
-    private GameObject activeTrigger;
+    private BreakdownPoint activePoint; // Изменили с GameObject на конкретный компонент
 
-    void Awake() => Instance = this;
-
-    public void StartSkillCheck(GameObject trigger)
+    void Awake()
     {
-        activeTrigger = trigger;
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
+    // Теперь принимаем не просто GameObject, а конкретный компонент точки
+    public void StartSkillCheck(BreakdownPoint point)
+    {
+        activePoint = point;
         skillCheckPanel.SetActive(true);
         currentCheck = skillCheckPanel.GetComponent<SkillCheckUI>();
+        
+        // Передаем колбэки
         currentCheck.StartCheck(OnSuccess, OnFail);
     }
 
@@ -27,19 +34,28 @@ public class SkillCheckManager : MonoBehaviour
         score += 100;
         UpdateScoreUI();
         skillCheckPanel.SetActive(false);
-        if (activeTrigger != null) Destroy(activeTrigger);
+        
+        // ИСПРАВЛЕНИЕ: Вместо уничтожения объекта, мы просто "чиним" его.
+        // Так BreakdownManager сможет снова создать здесь поломку через 15 сек.
+        if (activePoint != null)
+        {
+            activePoint.Fix();
+        }
     }
 
     private void OnFail()
     {
-        score -= 500;
+        score -= 50; // Уменьшил штраф до 50, чтобы 500 не убивали прогресс слишком быстро (можешь вернуть 500)
         UpdateScoreUI();
+        
+        // Показываем текст и сбрасываем стрелку, чтобы игрок мог попробовать снова
         currentCheck.ShowMissText();
-        currentCheck.ResetArrow(); // Скиллчек продолжается
+        currentCheck.ResetArrow();
     }
 
     private void UpdateScoreUI()
     {
-        if (scoreText != null) scoreText.text = $"Очки: {score}";
+        if (scoreText != null) 
+            scoreText.text = "Очки: " + score;
     }
 }

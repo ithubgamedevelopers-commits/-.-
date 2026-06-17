@@ -1,91 +1,145 @@
-﻿using System.Numerics;
-using TMPro;
 using UnityEngine;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
+using TMPro;
+using System; // Нужно для Action
 
 public class SkillCheckUI : MonoBehaviour
 {
-    public RectTransform track;       // Красная полоска (Pivot: center)
-    public RectTransform greenZone;   // Зеленая зона (дочерний объект track)
-    public RectTransform arrowVisual; // Модель стрелки
+    [Header("UI Элементы")]
+    public GameObject uiPanel;
+    public RectTransform track;
+    public RectTransform targetZone;
+    public RectTransform arrow;
 
-    [Header("Настройки")]
-    public float arrowSpeed = 3f;
-    [Tooltip("Доля от визуального размера стрелки, которая считается попаданием (0.5 = в 2 раза меньше)")]
-    public float hitboxMultiplier = 0.5f;
-
+    [Header("Текст промаха")]
     public TextMeshProUGUI missText;
     public float missTextDuration = 1f;
-
-    private System.Action onSuccess;
-    private System.Action onFail;
-    private float arrowPos; // От -width/2 до width/2
-    private float direction = 1f;
-    private bool isActive;
     private float missTimer;
+
+    [Header("Настройки")]
+    public float arrowSpeed = 300f;
+    public KeyCode confirmKey = KeyCode.Space;
+    public float hitMargin = 5f;
+
+    private float arrowX;
+    private int direction = 1;
+    private bool isActive;
+
+    private Action onSuccess;
+    private Action onFail;
 
     void Update()
     {
         if (!isActive) return;
 
         float trackWidth = track.rect.width;
-        arrowPos += arrowSpeed * direction * Time.deltaTime;
+        float halfWidth = trackWidth / 2f;
 
-        if (arrowPos >= trackWidth / 2f || arrowPos <= -trackWidth / 2f)
-            direction *= -1f;
+        // Двигаем стрелку
+        arrowX += arrowSpeed * direction * Time.deltaTime;
 
-        arrowVisual.anchoredPosition = new Vector2(arrowPos, 0);
+        // Отскок от краев
+        if (arrowX >= halfWidth)
+        {
+            arrowX = halfWidth;
+            direction = -1;
+        }
+        else if (arrowX <= -halfWidth)
+        {
+            arrowX = -halfWidth;
+            direction = 1;
+        }
 
-        if (Input.GetKeyDown(KeyCode.Space)) // Кнопка действия
+        arrow.anchoredPosition = new Vector2(arrowX, 0f);
+
+        // Проверка нажатия кнопки
+        if (Input.GetKeyDown(confirmKey))
+        {
             CheckHit();
+        }
 
+        // Таймер скрытия текста промаха
         if (missTimer > 0)
         {
             missTimer -= Time.deltaTime;
-            if (missTimer <= 0) missText.gameObject.SetActive(false);
+            if (missTimer <= 0 && missText != null)
+            {
+                missText.gameObject.SetActive(false);
+            }
         }
     }
 
-    public void StartCheck(System.Action success, System.Action fail)
+    public void StartCheck(Action successCallback, Action failCallback)
     {
-        onSuccess = success;
-        onFail = fail;
+        onSuccess = successCallback;
+        onFail = failCallback;
+
+        uiPanel.SetActive(true);
         isActive = true;
-        arrowPos = -track.rect.width / 2f;
-        direction = 1f;
-        missText.gameObject.SetActive(false);
+        direction = 1;
+        arrowX = -track.rect.width / 2f;
+        arrow.anchoredPosition = new Vector2(arrowX, 0f);
+
+        if (missText != null) missText.gameObject.SetActive(false);
+
+        RandomizeTargetZone();
+    }
+
+    private void RandomizeTargetZone()
+    {
+        float trackWidth = track.rect.width;
+        float zoneWidth = targetZone.rect.width;
+        float halfTrack = trackWidth / 2f;
+        float halfZone = zoneWidth / 2f;
+
+        float minX = -halfTrack + halfZone;
+        float maxX = halfTrack - halfZone;
+        
+        // ИСПРАВЛЕНИЕ: Явно указываем UnityEngine.Random, чтобы не было конфликта с System.Random
+        float randomX = UnityEngine.Random.Range(minX, maxX);
+        targetZone.anchoredPosition = new Vector2(randomX, 0f);
     }
 
     private void CheckHit()
     {
-        float effectiveArrowWidth = arrowVisual.rect.width * hitboxMultiplier;
-        float arrowLeft = arrowPos - (effectiveArrowWidth / 2f);
-        float arrowRight = arrowPos + (effectiveArrowWidth / 2f);
-
-        float greenLeft = greenZone.anchoredPosition.x - (greenZone.rect.width / 2f);
-        float greenRight = greenZone.anchoredPosition.x + (greenZone.rect.width / 2f);
-
-        // Проверка пересечения уменьшенной зоны стрелки с зеленой зоной
-        if (arrowRight >= greenLeft && arrowLeft <= greenRight)
+        float zoneX = targetZone.anchoredPosition.x;
+        float zoneHalfWidth = targetZone.rect.width / 2f;
+        
+        if (arrowX >= (zoneX - zoneHalfWidth - hitMargin) && arrowX <= (zoneX + zoneHalfWidth + hitMargin))
         {
-            isActive = false;
+            Debug.Log("SkillCheck: УСПЕХ!");
+            StopCheck();
             onSuccess?.Invoke();
         }
         else
         {
+            Debug.Log("SkillCheck: ПРОМАХ!");
+            // Не вызываем StopCheck(), чтобы игрок мог попробовать снова, 
+            // а менеджер сам вызовет ResetArrow() и ShowMissText()
             onFail?.Invoke();
         }
     }
 
+    // --- Методы, которые вызывает SkillCheckManager ---
+
     public void ShowMissText()
     {
-        missText.gameObject.SetActive(true);
-        missTimer = missTextDuration;
+        if (missText != null)
+        {
+            missText.gameObject.SetActive(true);
+            missTimer = missTextDuration;
+        }
     }
 
     public void ResetArrow()
     {
-        arrowPos = -track.rect.width / 2f;
-        direction = 1f;
+        arrowX = -track.rect.width / 2f;
+        direction = 1;
+        arrow.anchoredPosition = new Vector2(arrowX, 0f);
+    }
+
+    private void StopCheck()
+    {
+        isActive = false;
+        uiPanel.SetActive(false);
     }
 }

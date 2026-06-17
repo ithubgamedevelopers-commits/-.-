@@ -1,22 +1,20 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using UnityEngine;
 using TMPro;
-using UnityEngine;
-using static System.Net.Mime.MediaTypeNames;
+using System.IO;
+using System.Collections.Generic;
 
 public class HighScoreManager : MonoBehaviour
 {
     public static HighScoreManager Instance;
     public HighScoreData currentRecord;
-
+    
     [Header("UI")]
     public GameObject inputPanel;
-    public TMP_Text recordDisplayText; // Текст в главном меню
+    public TextMeshProUGUI recordDisplayText; 
     public VirtualKeyboard virtualKeyboard;
 
-    [Header("Фильтр")]
-    [Tooltip("Список запрещенных слов (в нижнем регистре)")]
-    public List<string> badWords = new List<string> { "bad", "fuck", "shit", "admin" };
+    [Header("Фильтр никнеймов")]
+    public List<string> badWords = new List<string> { "bad", "admin", "test" }; 
 
     private string savePath;
 
@@ -24,7 +22,7 @@ public class HighScoreManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
-
+        
         savePath = Path.Combine(Application.persistentDataPath, "highscore.json");
         LoadRecord();
     }
@@ -35,7 +33,7 @@ public class HighScoreManager : MonoBehaviour
             currentRecord = JsonUtility.FromJson<HighScoreData>(File.ReadAllText(savePath));
         else
             currentRecord = new HighScoreData { playerName = "AAA", score = 0 };
-
+            
         UpdateRecordDisplay();
     }
 
@@ -48,11 +46,10 @@ public class HighScoreManager : MonoBehaviour
         }
     }
 
-    // Проверка на валидность (длина + стоп-слова)
     public bool IsValidName(string name)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length != 5) return false;
-
+        
         string lowerName = name.ToLower();
         foreach (string bad in badWords)
         {
@@ -72,7 +69,7 @@ public class HighScoreManager : MonoBehaviour
         currentRecord.playerName = name.ToUpper();
         currentRecord.score = score;
         File.WriteAllText(savePath, JsonUtility.ToJson(currentRecord));
-
+        
         inputPanel.SetActive(false);
         UpdateRecordDisplay();
     }
@@ -80,6 +77,6 @@ public class HighScoreManager : MonoBehaviour
     public void UpdateRecordDisplay()
     {
         if (recordDisplayText != null)
-            recordDisplayText.text = $"ЛУЧШИЙ: {currentRecord.playerName} — {currentRecord.score}";
+            recordDisplayText.text = "ЛУЧШИЙ: " + currentRecord.playerName + " — " + currentRecord.score;
     }
 }

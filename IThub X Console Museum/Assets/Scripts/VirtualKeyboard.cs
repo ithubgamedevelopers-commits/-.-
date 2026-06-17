@@ -4,11 +4,11 @@ using UnityEngine.UI;
 
 public class VirtualKeyboard : MonoBehaviour
 {
-    public TMP_Text inputDisplay;
-    public TMP_Text errorText;       // Текст ошибки (изначально выключен)
-    public Button submitButton;      // Кнопка подтверждения
+    public TextMeshProUGUI inputDisplay;
+    public TextMeshProUGUI errorText;       
+    public Button submitButton;      
     public Button backspaceButton;
-    public GameObject keyPrefab;
+    public GameObject keyPrefab; 
     public Transform keysContainer;
 
     private int currentScore;
@@ -28,8 +28,8 @@ public class VirtualKeyboard : MonoBehaviour
         errorText.gameObject.SetActive(false);
         UpdateDisplay();
         gameObject.SetActive(true);
-
-        // Фокус на первую букву для геймпада
+        
+        // Автофокус на первую букву для навигации геймпадом
         if (keysContainer.childCount > 0)
             UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(keysContainer.GetChild(0).gameObject);
     }
@@ -41,7 +41,7 @@ public class VirtualKeyboard : MonoBehaviour
             GameObject btnObj = Instantiate(keyPrefab, keysContainer);
             Button btn = btnObj.GetComponent<Button>();
             btn.onClick.AddListener(() => AddChar(c.ToString()));
-            btnObj.GetComponentInChildren<TMP_Text>().text = c.ToString();
+            btnObj.GetComponentInChildren<TextMeshProUGUI>().text = c.ToString();
         }
     }
 
@@ -65,7 +65,6 @@ public class VirtualKeyboard : MonoBehaviour
         }
     }
 
-    // Вызывается кнопкой "Подтвердить" (Submit)
     public void Submit()
     {
         HighScoreManager.Instance.SaveRecord(currentInput, currentScore);
@@ -81,10 +80,7 @@ public class VirtualKeyboard : MonoBehaviour
 
     private void UpdateDisplay()
     {
-        // Показывает введенные буквы и подчеркивания для пустых мест
         inputDisplay.text = currentInput.PadRight(MAX_LENGTH, '_');
-
-        // Кнопка подтверждения активна только при ровно 5 символах
-        submitButton.interactable = currentInput.Length == MAX_LENGTH;
+        submitButton.interactable = (currentInput.Length == MAX_LENGTH);
     }
 }
