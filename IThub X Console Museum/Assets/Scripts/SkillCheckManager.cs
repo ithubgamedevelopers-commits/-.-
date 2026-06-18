@@ -80,8 +80,22 @@ public class SkillCheckManager : MonoBehaviour
     }
 
     private void UpdateScore()
-{
-    if (scoreText != null)
-        scoreText.text = "SCORE: " + score;
-}
+    {
+        if (scoreText != null)
+            scoreText.text = "SCORE: " + score;
+    }
+
+    public void CheckHighScore()
+    {
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.CheckAndPromptHighScore(score);
+        }
+    }
+
+    public void ResetScore()
+    {
+        score = 0;
+        UpdateScore();
+    }
 }

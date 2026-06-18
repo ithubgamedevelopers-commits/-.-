@@ -7,14 +7,14 @@ public class HighScoreManager : MonoBehaviour
 {
     public static HighScoreManager Instance;
     public HighScoreData currentRecord;
-    
+
     [Header("UI")]
     public GameObject inputPanel;
-    public TextMeshProUGUI recordDisplayText; 
+    public TextMeshProUGUI recordDisplayText;
     public VirtualKeyboard virtualKeyboard;
 
     [Header("Фильтр никнеймов")]
-    public List<string> badWords = new List<string> { "bad", "admin", "test" }; 
+    public List<string> badWords = new List<string> { "bad", "admin", "test" };
 
     private string savePath;
 
@@ -22,7 +22,7 @@ public class HighScoreManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
-        
+
         savePath = Path.Combine(Application.persistentDataPath, "highscore.json");
         LoadRecord();
     }
@@ -33,7 +33,7 @@ public class HighScoreManager : MonoBehaviour
             currentRecord = JsonUtility.FromJson<HighScoreData>(File.ReadAllText(savePath));
         else
             currentRecord = new HighScoreData { playerName = "AAA", score = 0 };
-            
+
         UpdateRecordDisplay();
     }
 
@@ -44,12 +44,16 @@ public class HighScoreManager : MonoBehaviour
             inputPanel.SetActive(true);
             virtualKeyboard.Initialize(finalScore);
         }
+        else
+        {
+            Time.timeScale = 1f;
+        }
     }
 
     public bool IsValidName(string name)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length != 5) return false;
-        
+
         string lowerName = name.ToLower();
         foreach (string bad in badWords)
         {
@@ -69,9 +73,11 @@ public class HighScoreManager : MonoBehaviour
         currentRecord.playerName = name.ToUpper();
         currentRecord.score = score;
         File.WriteAllText(savePath, JsonUtility.ToJson(currentRecord));
-        
+
         inputPanel.SetActive(false);
         UpdateRecordDisplay();
+
+        Time.timeScale = 1f;
     }
 
     public void UpdateRecordDisplay()
