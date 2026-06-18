@@ -3,7 +3,7 @@ using UnityEngine;
 public class BreakdownPoint : MonoBehaviour
 {
     [Header("Визуал")]
-    [SerializeField] private GameObject exclamationMark; // Спрайт "!"
+    public GameObject exclamationMark;
 
     public bool IsBroken { get; private set; }
 
@@ -11,33 +11,43 @@ public class BreakdownPoint : MonoBehaviour
     {
         if (exclamationMark != null)
             exclamationMark.SetActive(false);
+        
+        IsBroken = false;
     }
 
-    // Вызывается Менеджером для создания поломки
     public void Break()
     {
         IsBroken = true;
-        if (exclamationMark != null) 
+        if (exclamationMark != null)
             exclamationMark.SetActive(true);
+        
+        Debug.Log($"💥 Компьютер {gameObject.name} сломан!");
     }
 
-    // Вызывается при входе игрока в триггер
     public void Fix()
     {
         IsBroken = false;
-        if (exclamationMark != null) 
+        if (exclamationMark != null)
             exclamationMark.SetActive(false);
-            
-        Debug.Log("Точка починена!");
+        
+        Debug.Log($" Компьютер {gameObject.name} починен!");
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Если точка уже исправна или зашел не игрок — игнорируем
-        if (!IsBroken || !other.CompareTag("Player")) 
+        if (!IsBroken || !other.CompareTag("Player"))
             return;
 
-        // Игрок зашел в сломанную точку -> чиним её
-        Fix();
+        Debug.Log($"🎯 Игрок вошёл в триггер {gameObject.name}");
+
+        if (SkillCheckManager.Instance != null)
+        {
+            // Передаём ССЫЛКУ НА СЕБЯ, чтобы менеджер знал, кого чинить
+            SkillCheckManager.Instance.StartCheck(this);
+        }
+        else
+        {
+            Debug.LogError("❌ SkillCheckManager.Instance = null!");
+        }
     }
 }

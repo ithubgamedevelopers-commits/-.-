@@ -1,61 +1,87 @@
 ﻿using UnityEngine;
-using TMPro;
 
 public class SkillCheckManager : MonoBehaviour
 {
     public static SkillCheckManager Instance;
+
     public int score = 0;
-    public TextMeshProUGUI scoreText;
-    
+    public UnityEngine.UI.Text scoreText;
+
     [Header("UI Скиллчека")]
     public GameObject skillCheckPanel;
-    private SkillCheckUI currentCheck;
-    private BreakdownPoint activePoint; // Изменили с GameObject на конкретный компонент
+    private SkillCheckUI skillCheckUI;
+
+    [Header("Всплывающий текст")]
+    public ScorePopup scorePopupPrefab;
+
+    private BreakdownPoint activePoint;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        if (skillCheckPanel != null)
+            skillCheckUI = skillCheckPanel.GetComponent<SkillCheckUI>();
     }
 
-    // Теперь принимаем не просто GameObject, а конкретный компонент точки
-    public void StartSkillCheck(BreakdownPoint point)
+    public void StartCheck(BreakdownPoint point)
     {
         activePoint = point;
-        skillCheckPanel.SetActive(true);
-        currentCheck = skillCheckPanel.GetComponent<SkillCheckUI>();
-        
-        // Передаем колбэки
-        currentCheck.StartCheck(OnSuccess, OnFail);
+
+        if (skillCheckUI != null)
+            skillCheckUI.StartCheck(OnSuccess, OnFail);
     }
 
     private void OnSuccess()
     {
         score += 100;
-        UpdateScoreUI();
-        skillCheckPanel.SetActive(false);
-        
-        // ИСПРАВЛЕНИЕ: Вместо уничтожения объекта, мы просто "чиним" его.
-        // Так BreakdownManager сможет снова создать здесь поломку через 15 сек.
+        UpdateScore();
+        ShowFloatingText("+100", Color.green);
+        Debug.Log("✅ Компьютер починен! +100 очков");
+
         if (activePoint != null)
         {
             activePoint.Fix();
+            activePoint = null;
         }
     }
 
     private void OnFail()
     {
-        score -= 50; // Уменьшил штраф до 50, чтобы 500 не убивали прогресс слишком быстро (можешь вернуть 500)
-        UpdateScoreUI();
-        
-        // Показываем текст и сбрасываем стрелку, чтобы игрок мог попробовать снова
-        currentCheck.ShowMissText();
-        currentCheck.ResetArrow();
+        score -= 500;
+        UpdateScore();
+        ShowFloatingText("-500", Color.red);
+
+        if (skillCheckUI != null)
+            skillCheckUI.ResetArrow();
+
+        Debug.Log(" Промах! -500 очков");
     }
 
-    private void UpdateScoreUI()
+    private void ShowFloatingText(string message, Color color)
     {
-        if (scoreText != null) 
-            scoreText.text = "Очки: " + score;
+        if (scorePopupPrefab == null)
+        {
+            Debug.LogWarning("Не установлен префаб ScorePopupPrefab!");
+            return;
+        }
+
+        Vector3 centerScreen = new Vector3(Screen.width / 2f, Screen.height / 2f + 100f, 0);
+        ScorePopup popup = Instantiate(scorePopupPrefab, transform);
+        popup.Setup(message, color, centerScreen);
     }
+
+    private void UpdateScore()
+{
+    if (scoreText != null)
+        scoreText.text = "SCORE: " + score;
+}
 }

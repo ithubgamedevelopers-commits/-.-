@@ -6,21 +6,15 @@ using UnityEngine;
 public class BreakdownManager : MonoBehaviour
 {
     [Header("Настройки эскалации")]
-    [Tooltip("Максимальное количество одновременных поломок")]
-    [SerializeField] private int maxSimultaneousBreakdowns = 5;
-    
-    [Tooltip("Интервал проверки и добавления поломки (в секундах)")]
-    [SerializeField] private float spawnInterval = 15f;
-    
-    [Tooltip("Задержка перед самой первой поломкой в начале игры")]
-    [SerializeField] private float startDelay = 3f;
+    public int maxSimultaneousBreakdowns = 5;
+    public float spawnInterval = 15f;
+    public float startDelay = 3f;
 
     private List<BreakdownPoint> points = new List<BreakdownPoint>();
     private Coroutine spawnCoroutine;
 
-    private void Start()
+    void Start()
     {
-        // Находим все точки на сцене
         points.AddRange(FindObjectsOfType<BreakdownPoint>());
 
         if (points.Count == 0)
@@ -29,10 +23,8 @@ public class BreakdownManager : MonoBehaviour
             return;
         }
 
-        // Защита: если точек на сцене меньше 5, ограничиваем максимум их количеством
         maxSimultaneousBreakdowns = Mathf.Min(maxSimultaneousBreakdowns, points.Count);
 
-        // Запускаем бесконечный цикл проверки
         spawnCoroutine = StartCoroutine(SpawnBreakdownsRoutine());
     }
 
@@ -42,10 +34,8 @@ public class BreakdownManager : MonoBehaviour
 
         while (true)
         {
-            // Считаем, сколько точек сейчас сломано
             int brokenCount = points.Count(p => p.IsBroken);
 
-            // Если сломано меньше максимума, ломаем еще одну случайную исправную точку
             if (brokenCount < maxSimultaneousBreakdowns)
             {
                 var availablePoints = points.Where(p => !p.IsBroken).ToList();
@@ -54,11 +44,10 @@ public class BreakdownManager : MonoBehaviour
                 {
                     BreakdownPoint pointToBreak = availablePoints[Random.Range(0, availablePoints.Count)];
                     pointToBreak.Break();
-                    Debug.Log($"Появилась новая поломка! Всего сломано: {brokenCount + 1}");
+                    Debug.Log($" Новая поломка! Всего сломано: {brokenCount + 1}/{maxSimultaneousBreakdowns}");
                 }
             }
 
-            // Ждем 15 секунд до следующей проверки
             yield return new WaitForSeconds(spawnInterval);
         }
     }
