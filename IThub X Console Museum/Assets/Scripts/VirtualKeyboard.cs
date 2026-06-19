@@ -1,86 +1,167 @@
 ﻿using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 
 public class VirtualKeyboard : MonoBehaviour
 {
-    public TextMeshProUGUI inputDisplay;
-    public TextMeshProUGUI errorText;       
-    public Button submitButton;      
-    public Button backspaceButton;
-    public GameObject keyPrefab; 
-    public Transform keysContainer;
+    [Header("UI Элементы")]
+    [Tooltip("Все кнопки с буквами A-Z в массиве (строго по порядку: A, B, C... Z)")]
+    public Button[] letterButtons;
+    
+    [Tooltip("Кнопка удаления (DEL)")]
+    public Button delButton;
+    
+    [Tooltip("Кнопка подтверждения (ENTER)")]
+    public Button enterButton;
 
-    private int currentScore;
+    [Tooltip("Текстовое поле, где отображается вводимое имя (например 'A__')")]
+    public Text inputDisplayText; // <-- ЭТО ПОЛЕ БЫЛО ЗАБЫТО!
+
+    [Header("Визуал выделения")]
+    public Color normalColor = Color.white;
+    public Color selectedColor = Color.yellow;
+
+    private int selectedIndex = 0;
     private string currentInput = "";
-    private const int MAX_LENGTH = 5;
+    private const int MAX_LENGTH = 3;
 
-    void Start()
+    public void Initialize()
     {
-        GenerateKeyboard();
-        gameObject.SetActive(false);
-    }
-
-    public void Initialize(int score)
-    {
-        currentScore = score;
         currentInput = "";
-        errorText.gameObject.SetActive(false);
-        UpdateDisplay();
-        gameObject.SetActive(true);
+        UpdateInputDisplay();
+        SelectButton(0);
+    }
+
+    void Update()
+    {
+        if (!gameObject.activeSelf) return;
+
+        // === НАВИГАЦИЯ ПО ВИРТУАЛЬНОЙ КЛАВИАТУРЕ ===
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            MoveSelection(1);
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            MoveSelection(-1);
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+            MoveSelection(-9); // Переход на строку выше (сетка 3x9)
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+            MoveSelection(9);  // Переход на строку ниже
+
+        // === ВВОД С ФИЗИЧЕСКОЙ КЛАВИАТУРЫ (быстрый способ) ===
+        for (KeyCode key = KeyCode.A; key <= KeyCode.Z; key++)
+        {
+            if (Input.GetKeyDown(key))
+            {
+                string letter = key.ToString();
+                if (currentInput.Length < MAX_LENGTH)
+                {
+                    currentInput += letter;
+                    UpdateInputDisplay();
+                }
+                return;
+            }
+        }
+
+        // Backspace - удалить последний символ
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            if (currentInput.Length > 0)
+            {
+                currentInput = currentInput.Substring(0, currentInput.Length - 1);
+                UpdateInputDisplay();
+            }
+            return;
+        }
+
+        // Enter или Space - подтвердить
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+        {
+            if (selectedIndex == letterButtons.Length + 1)
+            {
+                OnEnterClick();
+            }
+            else if (currentInput.Length == MAX_LENGTH)
+            {
+                OnEnterClick();
+            }
+            return;
+        }
+    }
+
+    void MoveSelection(int step)
+    {
+        int newIndex = selectedIndex + step;
+        int maxIndex = letterButtons.Length + 1;
         
-        // Автофокус на первую букву для навигации геймпадом
-        if (keysContainer.childCount > 0)
-            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(keysContainer.GetChild(0).gameObject);
+        if (newIndex < 0) newIndex = 0;
+        if (newIndex > maxIndex) newIndex = maxIndex;
+        
+        if (newIndex != selectedIndex)
+            SelectButton(newIndex);
     }
 
-    private void GenerateKeyboard()
+    void SelectButton(int index)
     {
-        foreach (char c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        ResetButtonColor(selectedIndex);
+        selectedIndex = index;
+        SetButtonColor(selectedIndex, selectedColor);
+    }
+
+    void SetButtonColor(int index, Color color)
+    {
+        if (index < letterButtons.Length)
         {
-            GameObject btnObj = Instantiate(keyPrefab, keysContainer);
-            Button btn = btnObj.GetComponent<Button>();
-            btn.onClick.AddListener(() => AddChar(c.ToString()));
-            btnObj.GetComponentInChildren<TextMeshProUGUI>().text = c.ToString();
+            var img = letterButtons[index].GetComponent<Image>();
+            if (img) img.color = color;
+        }
+        else if (index == letterButtons.Length && delButton != null)
+        {
+            var img = delButton.GetComponent<Image>();
+            if (img) img.color = color;
+        }
+        else if (index == letterButtons.Length + 1 && enterButton != null)
+        {
+            var img = enterButton.GetComponent<Image>();
+            if (img) img.color = color;
         }
     }
 
-    public void AddChar(string c)
+    void ResetButtonColor(int index)
     {
-        if (currentInput.Length < MAX_LENGTH)
+        SetButtonColor(index, normalColor);
+    }
+
+    public void OnLetterClick(int index)
+    {
+        if (index >= 0 && index < letterButtons.Length)
         {
-            currentInput += c;
-            errorText.gameObject.SetActive(false);
-            UpdateDisplay();
+            string letter = letterButtons[index].GetComponentInChildren<Text>().text;
+            if (currentInput.Length < MAX_LENGTH)
+            {
+                currentInput += letter;
+                UpdateInputDisplay();
+            }
         }
     }
 
-    public void Backspace()
+    public void OnDeleteClick()
     {
         if (currentInput.Length > 0)
         {
             currentInput = currentInput.Substring(0, currentInput.Length - 1);
-            errorText.gameObject.SetActive(false);
-            UpdateDisplay();
+            UpdateInputDisplay();
         }
     }
 
-    public void Submit()
+    public void OnEnterClick()
     {
-        HighScoreManager.Instance.SaveRecord(currentInput, currentScore);
+        if (currentInput.Length == MAX_LENGTH)
+        {
+            HighScoreManager.Instance.SubmitName(currentInput);
+        }
     }
 
-    public void ShowError(string msg)
+    void UpdateInputDisplay()
     {
-        errorText.text = msg;
-        errorText.gameObject.SetActive(true);
-        currentInput = "";
-        UpdateDisplay();
-    }
-
-    private void UpdateDisplay()
-    {
-        inputDisplay.text = currentInput.PadRight(MAX_LENGTH, '_');
-        submitButton.interactable = (currentInput.Length == MAX_LENGTH);
+        if (inputDisplayText != null)
+            inputDisplayText.text = currentInput.PadRight(MAX_LENGTH, '_');
     }
 }

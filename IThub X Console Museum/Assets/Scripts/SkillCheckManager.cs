@@ -35,7 +35,6 @@ public class SkillCheckManager : MonoBehaviour
     public void StartCheck(BreakdownPoint point)
     {
         activePoint = point;
-
         if (skillCheckUI != null)
             skillCheckUI.StartCheck(OnSuccess, OnFail);
     }
@@ -63,7 +62,7 @@ public class SkillCheckManager : MonoBehaviour
         if (skillCheckUI != null)
             skillCheckUI.ResetArrow();
 
-        Debug.Log(" Промах! -500 очков");
+        Debug.Log("❌ Промах! -500 очков");
     }
 
     private void ShowFloatingText(string message, Color color)
@@ -88,14 +87,13 @@ public class SkillCheckManager : MonoBehaviour
     public void CheckHighScore()
     {
         if (HighScoreManager.Instance != null)
-        {
-            HighScoreManager.Instance.CheckAndPromptHighScore(score);
-        }
+            HighScoreManager.Instance.CheckHighScore();
     }
 
     public void ResetScore()
     {
         score = 0;
         UpdateScore();
+        Debug.Log("Счёт сброшен до 0");
     }
 }

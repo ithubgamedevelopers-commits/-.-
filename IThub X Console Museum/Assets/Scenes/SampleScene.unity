@@ -2605,13 +2605,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb56e7a51175f6d4185c6352ccd1b774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpawnInterval: 10
-  minSpawnInterval: 2
-  spawnAcceleration: 0.5
-  gameOverThreshold: 8
-  gameOverPanel: {fileID: 0}
-  gameOverScoreText: {fileID: 0}
-  menuButton: {fileID: 0}
+  maxSimultaneousBreakdowns: 5
+  spawnInterval: 15
+  startDelay: 3
 --- !u!4 &601004925
 Transform:
   m_ObjectHideFlags: 0
@@ -4964,13 +4960,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb56e7a51175f6d4185c6352ccd1b774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpawnInterval: 10
-  minSpawnInterval: 2
-  spawnAcceleration: 0.5
-  gameOverThreshold: 8
-  gameOverPanel: {fileID: 1506773879}
-  gameOverScoreText: {fileID: 574200116}
-  menuButton: {fileID: 289827517}
+  maxSimultaneousBreakdowns: 5
+  spawnInterval: 5
+  startDelay: 1.5
 --- !u!4 &1331633489
 Transform:
   m_ObjectHideFlags: 0
@@ -6212,7 +6204,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1766928943
 RectTransform:
   m_ObjectHideFlags: 0
